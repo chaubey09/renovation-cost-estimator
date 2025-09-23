@@ -1,0 +1,112 @@
+schema: '2.0'
+stages:
+  m1_tabular_preprocess:
+    cmd: python -m src.tabular.preprocess --input 
+      data/raw/renovation_cost_dataset_india_v2.csv --out 
+      data/processed/processed.parquet
+    deps:
+    - path: data/raw/renovation_cost_dataset_india_v2.csv
+      hash: md5
+      md5: b4392ffc65da8f3d6ea598bcaa4cccf4
+      size: 2107243
+    - path: params.yaml
+      hash: md5
+      md5: 6243357e7eb642274af6420a3d292ee5
+      size: 2039
+    - path: src/tabular/preprocess.py
+      hash: md5
+      md5: db1b15aedffecb6b485b0761f57bd270
+      size: 1848
+    outs:
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+  m2_quantity_estimation:
+    cmd: python -m src.quantity.estimate --tab data/processed/processed.parquet 
+      --detections data/interim/detections.jsonl --out 
+      data/processed/quantities.parquet
+    deps:
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+    - path: params.yaml
+      hash: md5
+      md5: 6243357e7eb642274af6420a3d292ee5
+      size: 2039
+    - path: src/quantity/estimate.py
+      hash: md5
+      md5: 904160864bfee670e1edc4a694d781ef
+      size: 2659
+    outs:
+    - path: data/processed/quantities.parquet
+      hash: md5
+      md5: ef5d9e709bd8775cfb458a5bf79ef751
+      size: 158972
+  m3_cost_mapping:
+    cmd: "python -m src.cost.map_costs --tab data/processed/processed.parquet --qty
+      data/processed/quantities.parquet --cost-index data/external/cost_indices.csv
+      --packages data/external/packages.csv --out data/processed/cost_breakdown.parquet
+      --metrics outputs/reports/metrics_m3.json --plots outputs/plots\n"
+    deps:
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+    - path: data/processed/quantities.parquet
+      hash: md5
+      md5: ef5d9e709bd8775cfb458a5bf79ef751
+      size: 158972
+    - path: params.yaml
+      hash: md5
+      md5: 6243357e7eb642274af6420a3d292ee5
+      size: 2039
+    - path: src/cost/map_costs.py
+      hash: md5
+      md5: d4b949cc053eac94fdd5cfdaadb76db0
+      size: 10392
+    outs:
+    - path: data/processed/cost_breakdown.parquet
+      hash: md5
+      md5: 0992698efcdde875ed5a22c723143d3a
+      size: 1627900
+    - path: outputs/plots
+      hash: md5
+      md5: 147e567204873429db71921deb5a9c33.dir
+      size: 391
+      nfiles: 1
+    - path: outputs/reports/metrics_m3.json
+      hash: md5
+      md5: 4dfe5c81831e5eb43fc9344462fb42d3
+      size: 658
+  m4_fusion_calibration_reporting:
+    cmd: "python -m src.fusion.fuse_report --tab data/processed/processed.parquet
+      --cost data/processed/cost_breakdown.parquet --out outputs/reports/final_estimates.parquet
+      --metrics outputs/reports/metrics.json\n"
+    deps:
+    - path: data/processed/cost_breakdown.parquet
+      hash: md5
+      md5: 0992698efcdde875ed5a22c723143d3a
+      size: 1627900
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+    - path: params.yaml
+      hash: md5
+      md5: 6243357e7eb642274af6420a3d292ee5
+      size: 2039
+    - path: src/fusion/fuse_report.py
+      hash: md5
+      md5: b05d72bc7ad14a0faa27b9679d6fb261
+      size: 2615
+    outs:
+    - path: outputs/reports/final_estimates.parquet
+      hash: md5
+      md5: 8748d550c36b45e9a35739199fe0fb90
+      size: 547021
+    - path: outputs/reports/metrics.json
+      hash: md5
+      md5: fd13b46a33663c09d54d7ebbdaf22f9c
+      size: 124

@@ -1,0 +1,95 @@
+paths:
+  raw_tabular: data/raw/renovation_cost_dataset_india_v2.csv   
+  processed_tabular: data/processed/processed.parquet
+  quantities: data/processed/quantities.parquet
+  cost_breakdown: data/processed/cost_breakdown.parquet
+  final_estimates: outputs/reports/final_estimates.parquet
+  metrics_m3: outputs/reports/metrics_m3.json                  
+  metrics_final: outputs/reports/metrics.json                  
+  plots_dir: outputs/plots
+  detections: data/interim/detections.jsonl
+  cost_indices_csv: data/external/cost_indices.csv
+  packages_csv: data/external/packages.csv
+  m1_preview_csv: outputs/reports/m1_preview.csv
+  m1_schema_json: outputs/reports/m1_schema.json
+  m2_preview_csv: outputs/reports/m2_preview.csv
+  m3_preview_csv: outputs/reports/m3_preview.csv
+  m4_preview_csv: outputs/reports/m4_preview.csv
+
+quant_rules:
+  wall_height_ft: 9.5
+  paint_wall_multiplier_by_room:
+    Bedroom: 3.4
+    "Living Room": 3.6
+    Dining: 3.2
+    "Kids Room": 3.4
+    Kitchen: 3.0
+    Bathroom: 2.2
+    default: 3.2
+  false_ceiling_ratio_by_type:
+    None: 0.0
+    POP: 0.85
+    Gypsum: 0.9
+    default: 0.0
+  electrical_points_base:
+    Bedroom: 12
+    "Living Room": 18
+    Dining: 10
+    "Kids Room": 10
+    Kitchen: 22
+    Bathroom: 6
+    default: 10
+  electrical_area_scale: 0.015
+
+rates:
+  base_mpi: 1.0
+  painting:
+    material_per_sqft_by_quality:
+      Economy: 16
+      Standard: 24
+      Premium: 34
+    labor_per_sqft: 9
+  flooring:
+    material_per_sqft_by_type_quality:
+      Ceramic_Tile:
+        Economy: 60
+        Standard: 85
+        Premium: 120
+      Vitrified_Tile:
+        Economy: 75
+        Standard: 110
+        Premium: 150
+    labor_per_sqft: 28
+  ceiling:
+    material_per_sqft_by_type_quality:
+      POP:
+        Economy: 65
+        Standard: 85
+        Premium: 120
+      Gypsum:
+        Economy: 80
+        Standard: 105
+        Premium: 140
+    labor_per_sqft: 22
+  electrical:
+    per_point_material: 450
+    per_point_labor: 180
+  packages:
+    kitchen:
+      Basic_S: 35000
+      Basic_L: 65000
+      Premium: 120000
+    bathroom:
+      Basic: 20000
+      Premium: 80000
+
+cost:
+  wastage_pct: 0.03
+  contractor_overhead_pct: 0.12
+  gst_rate: 0.18
+
+fusion:
+  method: weighted_sum
+  w_tabular: 0.3
+  w_quantity: 0.7
+  calibration_factor: 1.0

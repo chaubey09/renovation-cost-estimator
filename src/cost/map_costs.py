@@ -225,6 +225,17 @@ def main(tab_pq, qty_pq, cost_index_csv, packages_csv, outp, metrics_path, plots
         pd.DataFrame({"City": [], "Total_Cost_per_Sqft_Q": []}).to_csv(
             os.path.join(plots_dir, "cost_per_sqft_by_city.csv"), index=False
         )
+    
+    if args.preview_csv:
+        cols = ["Row_ID","City","Room_Type","Area_Sqft",
+                "Painting_Material_Est","Painting_Labor_Est",
+                "Flooring_Material_Est","Flooring_Labor_Est",
+                "Ceiling_Material_Est","Ceiling_Labor_Est",
+                "Electrical_Material_Est","Electrical_Labor_Est",
+                "Kitchen_Package_Cost_Est","Bathroom_Package_Cost_Est",
+                "Grand_Total_Quantity","Total_Cost_per_Sqft_Q"]
+        existing = [c for c in cols if c in df.columns]
+        df[existing].head(args.preview_n).to_csv(args.preview_csv, index=False)
 
 
 if __name__ == "__main__":
@@ -238,3 +249,5 @@ if __name__ == "__main__":
     ap.add_argument("--plots", required=True)
     args = ap.parse_args()
     main(args.tab, args.qty, args.cost_index, args.packages, args.out, args.metrics, args.plots)
+    ap.add_argument("--preview-csv", default="")
+    ap.add_argument("--preview-n", type=int, default=200)

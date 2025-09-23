@@ -1,24 +1,36 @@
-vars:
-  - params.yaml
-
 stages:
   m1_tabular_preprocess:
-    cmd: python -m src.tabular.preprocess --input ${paths.raw_tabular} --out ${paths.processed_tabular}
+    cmd: >
+      python -m src.tabular.preprocess
+      --input ${paths.raw_tabular}
+      --out ${paths.processed_tabular}
+      --preview-csv ${paths.m1_preview_csv}
+      --schema-json ${paths.m1_schema_json}
+      --preview-n 200
     deps:
       - src/tabular/preprocess.py
       - ${paths.raw_tabular}
       - params.yaml
     outs:
       - ${paths.processed_tabular}
+      - ${paths.m1_preview_csv}
+      - ${paths.m1_schema_json}
 
   m2_quantity_estimation:
-    cmd: python -m src.quantity.estimate --tab ${paths.processed_tabular} --detections ${paths.detections} --out ${paths.quantities}
+    cmd: >
+      python -m src.quantity.estimate
+      --tab ${paths.processed_tabular}
+      --detections ${paths.detections}
+      --out ${paths.quantities}
+      --preview-csv ${paths.m2_preview_csv}
+      --preview-n 200
     deps:
       - src/quantity/estimate.py
       - ${paths.processed_tabular}
       - params.yaml
     outs:
       - ${paths.quantities}
+      - ${paths.m2_preview_csv}
 
   m3_cost_mapping:
     cmd: >
@@ -30,6 +42,8 @@ stages:
       --out ${paths.cost_breakdown}
       --metrics ${paths.metrics_m3}
       --plots ${paths.plots_dir}
+      --preview-csv ${paths.m3_preview_csv}
+      --preview-n 200
     deps:
       - src/cost/map_costs.py
       - ${paths.processed_tabular}
@@ -38,6 +52,7 @@ stages:
     outs:
       - ${paths.cost_breakdown}
       - ${paths.plots_dir}
+      - ${paths.m3_preview_csv}
     metrics:
       - ${paths.metrics_m3}
 
@@ -48,6 +63,8 @@ stages:
       --cost ${paths.cost_breakdown}
       --out ${paths.final_estimates}
       --metrics ${paths.metrics_final}
+      --preview-csv ${paths.m4_preview_csv}
+      --preview-n 200
     deps:
       - src/fusion/fuse_report.py
       - ${paths.processed_tabular}
@@ -55,6 +72,6 @@ stages:
       - params.yaml
     outs:
       - ${paths.final_estimates}
+      - ${paths.m4_preview_csv}
     metrics:
       - ${paths.metrics_final}
-

@@ -1,5 +1,5 @@
 # src/tabular/preprocess.py
-import argparse, pandas as pd, numpy as np, os
+import argparse, pandas as pd, numpy as np, os, json
 
 BOOL_MAP = {"TRUE": True, "FALSE": False, "True": True, "False": False, True: True, False: False}
 
@@ -39,9 +39,34 @@ def main(inp, outp):
 
     df.to_parquet(outp, index=False)
 
+    if args.preview_csv:
+        n = int(args.preview_n)
+        df.head(n).to_csv(args.preview_csv, index=False)
+
+    if args.schema_json:
+        schema = {c: str(dt) for c, dt in df.dtypes.items()}
+        with open(args.schema_json, "w", encoding="utf-8") as f:
+            json.dump({"rows": int(len(df)), "schema": schema}, f, indent=2)
+
+# keep main(inp, outp) as-is
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--preview-csv", default="")
+    ap.add_argument("--schema-json", default="")
+    ap.add_argument("--preview-n", type=int, default=200)
     args = ap.parse_args()
+
+    # run main
     main(args.input, args.out)
+
+    # post-save previews
+    import pandas as pd, json
+    df = pd.read_parquet(args.out)
+    if args.preview_csv:
+        df.head(args.preview_n).to_csv(args.preview_csv, index=False)
+    if args.schema_json:
+        schema = {c: str(dt) for c, dt in df.dtypes.items()}
+        with open(args.schema_json, "w", encoding="utf-8") as f:
+            json.dump({"rows": int(len(df)), "schema": schema}, f, indent=2)
