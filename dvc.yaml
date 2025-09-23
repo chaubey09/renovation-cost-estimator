@@ -1,0 +1,60 @@
+vars:
+  - params.yaml
+
+stages:
+  m1_tabular_preprocess:
+    cmd: python -m src.tabular.preprocess --input ${paths.raw_tabular} --out ${paths.processed_tabular}
+    deps:
+      - src/tabular/preprocess.py
+      - ${paths.raw_tabular}
+      - params.yaml
+    outs:
+      - ${paths.processed_tabular}
+
+  m2_quantity_estimation:
+    cmd: python -m src.quantity.estimate --tab ${paths.processed_tabular} --detections ${paths.detections} --out ${paths.quantities}
+    deps:
+      - src/quantity/estimate.py
+      - ${paths.processed_tabular}
+      - params.yaml
+    outs:
+      - ${paths.quantities}
+
+  m3_cost_mapping:
+    cmd: >
+      python -m src.cost.map_costs
+      --tab ${paths.processed_tabular}
+      --qty ${paths.quantities}
+      --cost-index ${paths.cost_indices_csv}
+      --packages ${paths.packages_csv}
+      --out ${paths.cost_breakdown}
+      --metrics ${paths.metrics_m3}
+      --plots ${paths.plots_dir}
+    deps:
+      - src/cost/map_costs.py
+      - ${paths.processed_tabular}
+      - ${paths.quantities}
+      - params.yaml
+    outs:
+      - ${paths.cost_breakdown}
+      - ${paths.plots_dir}
+    metrics:
+      - ${paths.metrics_m3}
+
+  m4_fusion_calibration_reporting:
+    cmd: >
+      python -m src.fusion.fuse_report
+      --tab ${paths.processed_tabular}
+      --cost ${paths.cost_breakdown}
+      --out ${paths.final_estimates}
+      --metrics ${paths.metrics_final}
+    deps:
+      - src/fusion/fuse_report.py
+      - ${paths.processed_tabular}
+      - ${paths.cost_breakdown}
+      - params.yaml
+    outs:
+      - ${paths.final_estimates}
+    metrics:
+      - ${paths.metrics_final}
+
