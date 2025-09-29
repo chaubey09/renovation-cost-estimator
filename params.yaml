@@ -1,11 +1,11 @@
 paths:
-  raw_tabular: data/raw/renovation_cost_dataset_india_v2.csv   
+  raw_tabular: data/raw/renovation_cost_dataset_india_v2.csv
   processed_tabular: data/processed/processed.parquet
   quantities: data/processed/quantities.parquet
   cost_breakdown: data/processed/cost_breakdown.parquet
   final_estimates: outputs/reports/final_estimates.parquet
-  metrics_m3: outputs/reports/metrics_m3.json                  
-  metrics_final: outputs/reports/metrics.json                  
+  metrics_m3: outputs/reports/metrics_m3.json
+  metrics_final: outputs/reports/metrics.json
   plots_dir: outputs/plots
   detections: data/interim/detections.jsonl
   cost_indices_csv: data/external/cost_indices.csv
@@ -15,6 +15,8 @@ paths:
   m2_preview_csv: outputs/reports/m2_preview.csv
   m3_preview_csv: outputs/reports/m3_preview.csv
   m4_preview_csv: outputs/reports/m4_preview.csv
+  model_path: models/model.joblib
+  train_metrics: outputs/reports/train_metrics.json
 
 quant_rules:
   wall_height_ft: 9.5
@@ -93,3 +95,19 @@ fusion:
   w_tabular: 0.3
   w_quantity: 0.7
   calibration_factor: 1.0
+
+# Parameters for the ML model training stage
+train:
+  split:
+    test_size: 0.2
+    random_state: 42
+  model:
+    objective: regression_l1  # MAE
+    n_estimators: 500
+    learning_rate: 0.05
+    num_leaves: 31
+    max_depth: -1
+    min_child_samples: 20
+    subsample: 0.8
+    colsample_bytree: 0.8
+    n_jobs: -1

@@ -11,8 +11,8 @@ stages:
       size: 2107243
     - path: params.yaml
       hash: md5
-      md5: 786f349c7d3cba899533d1ad708bc2fb
-      size: 2284
+      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
+      size: 2646
     - path: src/tabular/preprocess.py
       hash: md5
       md5: 43def28adbfa89e98a4d78b72b95e4ec
@@ -41,8 +41,8 @@ stages:
       size: 826058
     - path: params.yaml
       hash: md5
-      md5: 786f349c7d3cba899533d1ad708bc2fb
-      size: 2284
+      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
+      size: 2646
     - path: src/quantity/estimate.py
       hash: md5
       md5: 256c0e0e60d979ca7cbbb410fbc02194
@@ -73,8 +73,8 @@ stages:
       size: 158972
     - path: params.yaml
       hash: md5
-      md5: 786f349c7d3cba899533d1ad708bc2fb
-      size: 2284
+      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
+      size: 2646
     - path: src/cost/map_costs.py
       hash: md5
       md5: af610c58e12c7895ad36978e0543e6b3
@@ -113,8 +113,8 @@ stages:
       size: 826058
     - path: params.yaml
       hash: md5
-      md5: 786f349c7d3cba899533d1ad708bc2fb
-      size: 2284
+      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
+      size: 2646
     - path: src/fusion/fuse_report.py
       hash: md5
       md5: d0a87ceef6880a92bbb67e1ba7e6560d
@@ -132,3 +132,33 @@ stages:
       hash: md5
       md5: fd13b46a33663c09d54d7ebbdaf22f9c
       size: 124
+  m5_train_model:
+    cmd: "python -m src.train.train_model --costs data/processed/cost_breakdown.parquet
+      --processed data/processed/processed.parquet --model-out models/model.joblib
+      --metrics-out outputs/reports/train_metrics.json\n"
+    deps:
+    - path: data/processed/cost_breakdown.parquet
+      hash: md5
+      md5: 0992698efcdde875ed5a22c723143d3a
+      size: 1627900
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+    - path: params.yaml
+      hash: md5
+      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
+      size: 2646
+    - path: src/train/train_model.py
+      hash: md5
+      md5: 867d5b214841bc45fa16c3dbd478e45f
+      size: 4775
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 9f8756a51d732ff2326813b9397c381b
+      size: 1406084
+    - path: outputs/reports/train_metrics.json
+      hash: md5
+      md5: 07596ea8f0d0f7006c1300be42f6c797
+      size: 98

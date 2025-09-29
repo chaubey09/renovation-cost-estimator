@@ -75,3 +75,22 @@ stages:
       - ${paths.m4_preview_csv}
     metrics:
       - ${paths.metrics_final}
+
+  # NEW STAGE: Train the ML Model
+  m5_train_model:
+    cmd: >
+      python -m src.train.train_model
+      --costs ${paths.cost_breakdown}
+      --processed ${paths.processed_tabular}
+      --model-out ${paths.model_path}
+      --metrics-out ${paths.train_metrics}
+    deps:
+      - src/train/train_model.py
+      - ${paths.cost_breakdown}
+      - ${paths.processed_tabular}
+      - params.yaml # <-- Change this line to be safe
+    outs:
+      - ${paths.model_path}
+    metrics:
+      - ${paths.train_metrics}:
+          cache: false

@@ -1,4 +1,13 @@
+# Core Data and I/O
 pandas==2.2.2
 numpy==1.26.4
 pyyaml==6.0.2
 pyarrow==16.1.0
+
+# Machine Learning
+scikit-learn==1.5.0   # For data splitting, pipelines, and metrics
+lightgbm==4.4.0       # The main ML model used for training
+# xgboost==2.0.3      # Optional: uncomment to experiment with XGBoost
+
+# MLOps Tool
+dvc==3.50.1          # The core tool for running the pipeline
