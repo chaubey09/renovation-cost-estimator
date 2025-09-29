@@ -1,8 +1,27 @@
-.venv/
+# Python virtual environment
+costenv/
+venv/
+*.env
+
+# Python cache files
 __pycache__/
 *.pyc
-.DS_Store
-outputs/plots/*
-!outputs/plots/.gitkeep
+*.pyo
+*.pyd
+
+# DVC internal files (NEVER gitignore .dvc/config or stages)
+.dvc/cache
+.dvc/tmp
+.dvc/lock
+
+# Data files (tracked by DVC, not Git)
+data/
+outputs/
 models/
-data/processed/
+
+# Streamlit
+.streamlit/
+
+# IDE specific
+.vscode/
+.idea/

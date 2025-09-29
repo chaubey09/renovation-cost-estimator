@@ -2,3 +2,7 @@
 /final_estimates.parquet
 /metrics.json
 /m4_preview.csv
+/m1_preview.csv
+/m1_schema.json
+/m2_preview.csv
+/m3_preview.csv
