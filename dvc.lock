@@ -11,8 +11,8 @@ stages:
       size: 2107243
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/tabular/preprocess.py
       hash: md5
       md5: 43def28adbfa89e98a4d78b72b95e4ec
@@ -41,8 +41,8 @@ stages:
       size: 826058
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/quantity/estimate.py
       hash: md5
       md5: 256c0e0e60d979ca7cbbb410fbc02194
@@ -73,8 +73,8 @@ stages:
       size: 158912
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/cost/map_costs.py
       hash: md5
       md5: af610c58e12c7895ad36978e0543e6b3
@@ -113,12 +113,12 @@ stages:
       size: 826058
     - path: outputs/reports/ml_predictions.parquet
       hash: md5
-      md5: e36bfc33e13d3e91b12a7c93225ec248
-      size: 255358
+      md5: 6f77633d29c39511a3cdb35fbf448754
+      size: 255374
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/fusion/fuse_report.py
       hash: md5
       md5: 98546682c50862b211955db93ec7edc0
@@ -126,16 +126,16 @@ stages:
     outs:
     - path: outputs/reports/final_estimates.parquet
       hash: md5
-      md5: 13054f645f42b942bee46c8d88822854
-      size: 743496
+      md5: c1dae5ccb4b6b068ad04756eee5e2b31
+      size: 743512
     - path: outputs/reports/m4_preview.csv
       hash: md5
-      md5: 42917b70a3e621ff61302935ab8405a2
-      size: 26902
+      md5: 309e94d2a39fc85706efa65b9e0abdc3
+      size: 26896
     - path: outputs/reports/metrics.json
       hash: md5
-      md5: 2bfa669d09d1fc66c8d13d41269e690d
-      size: 335
+      md5: 815493b71ea78438a2f158704b5e54b5
+      size: 337
   m5_train_model:
     cmd: "python -m src.train.train_model --costs data/processed/cost_breakdown.parquet
       --processed data/processed/processed.parquet --model-out models/model.joblib
@@ -181,8 +181,8 @@ stages:
       size: 826058
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/train/train_model.py
       hash: md5
       md5: 4cd82cefa9fad9480f0e54d16980cd58
@@ -190,11 +190,11 @@ stages:
     outs:
     - path: models/lgbm.pkl
       hash: md5
-      md5: 5f84dd60522973b92580b16fb5c6dd54
-      size: 1419807
+      md5: 523614d48f2fdf36f962d79458f1300b
+      size: 6862608
     - path: outputs/reports/model_metrics.json
       hash: md5
-      md5: 46feeba304b7a64a2e998d738b469e78
+      md5: dce4c1c423b62525585be60d83fe8476
       size: 117
   m5_predict_model:
     cmd: "python -m src.model.batch_predict --model models/lgbm.pkl --features data/processed/cost_breakdown.parquet
@@ -207,12 +207,12 @@ stages:
       size: 1627872
     - path: models/lgbm.pkl
       hash: md5
-      md5: 5f84dd60522973b92580b16fb5c6dd54
-      size: 1419807
+      md5: 523614d48f2fdf36f962d79458f1300b
+      size: 6862608
     - path: params.yaml
       hash: md5
-      md5: c2e609b94d701c8fbaa8028223bcaa0f
-      size: 2743
+      md5: b7b69f4d7d0d148a82481387645e5428
+      size: 2885
     - path: src/model/batch_predict.py
       hash: md5
       md5: 67c44b4015b7e97727d52169d666cd86
@@ -220,9 +220,9 @@ stages:
     outs:
     - path: outputs/reports/ml_predictions.parquet
       hash: md5
-      md5: e36bfc33e13d3e91b12a7c93225ec248
-      size: 255358
+      md5: 6f77633d29c39511a3cdb35fbf448754
+      size: 255374
     - path: outputs/reports/ml_preview.csv
       hash: md5
-      md5: 96e8b71d452bc47c13f738c11e81bbde
-      size: 8264
+      md5: 928e2289a2e8ec50cac9a54804825f4e
+      size: 8270
