@@ -11,8 +11,8 @@ stages:
       size: 2107243
     - path: params.yaml
       hash: md5
-      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
-      size: 2646
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
     - path: src/tabular/preprocess.py
       hash: md5
       md5: 43def28adbfa89e98a4d78b72b95e4ec
@@ -32,7 +32,7 @@ stages:
       size: 1272
   m2_quantity_estimation:
     cmd: "python -m src.quantity.estimate --tab data/processed/processed.parquet --detections
-      data/interim/detections.jsonl --out data/processed/quantities.parquet --preview-csv
+      data/external/detections.jsonl --out data/processed/quantities.parquet --preview-csv
       outputs/reports/m2_preview.csv --preview-n 200\n"
     deps:
     - path: data/processed/processed.parquet
@@ -41,8 +41,8 @@ stages:
       size: 826058
     - path: params.yaml
       hash: md5
-      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
-      size: 2646
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
     - path: src/quantity/estimate.py
       hash: md5
       md5: 256c0e0e60d979ca7cbbb410fbc02194
@@ -50,12 +50,12 @@ stages:
     outs:
     - path: data/processed/quantities.parquet
       hash: md5
-      md5: ef5d9e709bd8775cfb458a5bf79ef751
-      size: 158972
+      md5: d48f47abd62e6b6498572d77b4f900e0
+      size: 158912
     - path: outputs/reports/m2_preview.csv
       hash: md5
-      md5: 2debbc4733e61be9bec64a876d1d694e
-      size: 8581
+      md5: b8995c8a510fa879a45f9c7b5b5b4610
+      size: 8180
   m3_cost_mapping:
     cmd: "python -m src.cost.map_costs --tab data/processed/processed.parquet --qty
       data/processed/quantities.parquet --cost-index data/external/cost_indices.csv
@@ -69,12 +69,12 @@ stages:
       size: 826058
     - path: data/processed/quantities.parquet
       hash: md5
-      md5: ef5d9e709bd8775cfb458a5bf79ef751
-      size: 158972
+      md5: d48f47abd62e6b6498572d77b4f900e0
+      size: 158912
     - path: params.yaml
       hash: md5
-      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
-      size: 2646
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
     - path: src/cost/map_costs.py
       hash: md5
       md5: af610c58e12c7895ad36978e0543e6b3
@@ -82,56 +82,60 @@ stages:
     outs:
     - path: data/processed/cost_breakdown.parquet
       hash: md5
-      md5: 0992698efcdde875ed5a22c723143d3a
-      size: 1627900
+      md5: 8ab0eff555c80d2fe7d176323a5a9c16
+      size: 1627872
     - path: outputs/plots
       hash: md5
-      md5: 147e567204873429db71921deb5a9c33.dir
+      md5: 6d31799cac14be0df566683ecb57299f.dir
       size: 391
       nfiles: 1
     - path: outputs/reports/m3_preview.csv
       hash: md5
-      md5: e59d4d8e147aba7a89f3db01e62bff0f
-      size: 25692
+      md5: 519ab9dba92a1ec0b5b38f7cc9bedfc6
+      size: 25693
     - path: outputs/reports/metrics_m3.json
       hash: md5
-      md5: 4dfe5c81831e5eb43fc9344462fb42d3
+      md5: cefb5301788b84de92289e564cc7e56c
       size: 658
   m4_fusion_calibration_reporting:
     cmd: "python -m src.fusion.fuse_report --tab data/processed/processed.parquet
-      --cost data/processed/cost_breakdown.parquet --out outputs/reports/final_estimates.parquet
-      --metrics outputs/reports/metrics.json --preview-csv outputs/reports/m4_preview.csv
-      --preview-n 200\n"
+      --cost data/processed/cost_breakdown.parquet --ml outputs/reports/ml_predictions.parquet
+      --out outputs/reports/final_estimates.parquet --metrics outputs/reports/metrics.json
+      --preview-csv outputs/reports/m4_preview.csv --preview-n 200\n"
     deps:
     - path: data/processed/cost_breakdown.parquet
       hash: md5
-      md5: 0992698efcdde875ed5a22c723143d3a
-      size: 1627900
+      md5: 8ab0eff555c80d2fe7d176323a5a9c16
+      size: 1627872
     - path: data/processed/processed.parquet
       hash: md5
       md5: 262a4e05f7499bcdb5803af14fb76fff
       size: 826058
+    - path: outputs/reports/ml_predictions.parquet
+      hash: md5
+      md5: e36bfc33e13d3e91b12a7c93225ec248
+      size: 255358
     - path: params.yaml
       hash: md5
-      md5: ba6ca61b0a7bb2c4d40cc69c91cf5bd6
-      size: 2646
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
     - path: src/fusion/fuse_report.py
       hash: md5
-      md5: d0a87ceef6880a92bbb67e1ba7e6560d
-      size: 4475
+      md5: 98546682c50862b211955db93ec7edc0
+      size: 6093
     outs:
     - path: outputs/reports/final_estimates.parquet
       hash: md5
-      md5: 8748d550c36b45e9a35739199fe0fb90
-      size: 547021
+      md5: 13054f645f42b942bee46c8d88822854
+      size: 743496
     - path: outputs/reports/m4_preview.csv
       hash: md5
-      md5: 0027df92478342cc64b6d0f36f1e3a08
-      size: 18994
+      md5: 42917b70a3e621ff61302935ab8405a2
+      size: 26902
     - path: outputs/reports/metrics.json
       hash: md5
-      md5: fd13b46a33663c09d54d7ebbdaf22f9c
-      size: 124
+      md5: 2bfa669d09d1fc66c8d13d41269e690d
+      size: 335
   m5_train_model:
     cmd: "python -m src.train.train_model --costs data/processed/cost_breakdown.parquet
       --processed data/processed/processed.parquet --model-out models/model.joblib
@@ -162,3 +166,63 @@ stages:
       hash: md5
       md5: ec5c15512ebe483b95c1423b1f3ffdb3
       size: 95
+  m4_train_model:
+    cmd: "python -m src.train.train_model --costs data/processed/cost_breakdown.parquet
+      --processed data/processed/processed.parquet --model-out models/lgbm.pkl --metrics-out
+      outputs/reports/model_metrics.json\n"
+    deps:
+    - path: data/processed/cost_breakdown.parquet
+      hash: md5
+      md5: 8ab0eff555c80d2fe7d176323a5a9c16
+      size: 1627872
+    - path: data/processed/processed.parquet
+      hash: md5
+      md5: 262a4e05f7499bcdb5803af14fb76fff
+      size: 826058
+    - path: params.yaml
+      hash: md5
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
+    - path: src/train/train_model.py
+      hash: md5
+      md5: 4cd82cefa9fad9480f0e54d16980cd58
+      size: 5101
+    outs:
+    - path: models/lgbm.pkl
+      hash: md5
+      md5: 5f84dd60522973b92580b16fb5c6dd54
+      size: 1419807
+    - path: outputs/reports/model_metrics.json
+      hash: md5
+      md5: 46feeba304b7a64a2e998d738b469e78
+      size: 117
+  m5_predict_model:
+    cmd: "python -m src.model.batch_predict --model models/lgbm.pkl --features data/processed/cost_breakdown.parquet
+      --out outputs/reports/ml_predictions.parquet --preview-csv outputs/reports/ml_preview.csv
+      --preview-n 200\n"
+    deps:
+    - path: data/processed/cost_breakdown.parquet
+      hash: md5
+      md5: 8ab0eff555c80d2fe7d176323a5a9c16
+      size: 1627872
+    - path: models/lgbm.pkl
+      hash: md5
+      md5: 5f84dd60522973b92580b16fb5c6dd54
+      size: 1419807
+    - path: params.yaml
+      hash: md5
+      md5: c2e609b94d701c8fbaa8028223bcaa0f
+      size: 2743
+    - path: src/model/batch_predict.py
+      hash: md5
+      md5: 67c44b4015b7e97727d52169d666cd86
+      size: 2949
+    outs:
+    - path: outputs/reports/ml_predictions.parquet
+      hash: md5
+      md5: e36bfc33e13d3e91b12a7c93225ec248
+      size: 255358
+    - path: outputs/reports/ml_preview.csv
+      hash: md5
+      md5: 96e8b71d452bc47c13f738c11e81bbde
+      size: 8264
