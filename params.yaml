@@ -1,22 +1,25 @@
 paths:
-  raw_tabular: data/raw/renovation_cost_dataset_india_v2.csv
+  raw_tabular: data/raw/your_file.csv
   processed_tabular: data/processed/processed.parquet
+  detections: data/external/detections.jsonl
   quantities: data/processed/quantities.parquet
-  cost_breakdown: data/processed/cost_breakdown.parquet
-  final_estimates: outputs/reports/final_estimates.parquet
-  metrics_m3: outputs/reports/metrics_m3.json
-  metrics_final: outputs/reports/metrics.json
-  plots_dir: outputs/plots
-  detections: data/interim/detections.jsonl
   cost_indices_csv: data/external/cost_indices.csv
   packages_csv: data/external/packages.csv
+  cost_breakdown: data/processed/cost_breakdown.parquet
+  metrics_m3: outputs/reports/metrics_m3.json
+  plots_dir: outputs/plots
   m1_preview_csv: outputs/reports/m1_preview.csv
   m1_schema_json: outputs/reports/m1_schema.json
   m2_preview_csv: outputs/reports/m2_preview.csv
   m3_preview_csv: outputs/reports/m3_preview.csv
+  final_estimates: outputs/reports/final_estimates.parquet
+  metrics_final: outputs/reports/metrics.json
   m4_preview_csv: outputs/reports/m4_preview.csv
-  model_path: models/model.joblib
-  train_metrics: outputs/reports/train_metrics.json
+
+  model_path: models/lgbm.pkl
+  train_metrics: outputs/reports/model_metrics.json
+  ml_predictions: outputs/reports/ml_predictions.parquet
+  mlp_preview_csv: outputs/reports/ml_preview.csv
 
 quant_rules:
   wall_height_ft: 9.5
@@ -91,9 +94,9 @@ cost:
   gst_rate: 0.18
 
 fusion:
-  method: weighted_sum
-  w_tabular: 0.3
-  w_quantity: 0.7
+  w_tabular: 0.30
+  w_quantity: 0.40
+  w_ml: 0.30
   calibration_factor: 1.0
 
 # Parameters for the ML model training stage

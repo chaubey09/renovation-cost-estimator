@@ -1,3 +1,6 @@
+vars:
+  - params.yaml
+
 stages:
   m1_tabular_preprocess:
     cmd: >
@@ -56,28 +59,8 @@ stages:
     metrics:
       - ${paths.metrics_m3}
 
-  m4_fusion_calibration_reporting:
-    cmd: >
-      python -m src.fusion.fuse_report
-      --tab ${paths.processed_tabular}
-      --cost ${paths.cost_breakdown}
-      --out ${paths.final_estimates}
-      --metrics ${paths.metrics_final}
-      --preview-csv ${paths.m4_preview_csv}
-      --preview-n 200
-    deps:
-      - src/fusion/fuse_report.py
-      - ${paths.processed_tabular}
-      - ${paths.cost_breakdown}
-      - params.yaml
-    outs:
-      - ${paths.final_estimates}
-      - ${paths.m4_preview_csv}
-    metrics:
-      - ${paths.metrics_final}
-
-  # NEW STAGE: Train the ML Model
-  m5_train_model:
+  # Train the ML model on M3 features + GT labels
+  m4_train_model:
     cmd: >
       python -m src.train.train_model
       --costs ${paths.cost_breakdown}
@@ -88,9 +71,50 @@ stages:
       - src/train/train_model.py
       - ${paths.cost_breakdown}
       - ${paths.processed_tabular}
-      - params.yaml # <-- Change this line to be safe
+      - params.yaml
     outs:
       - ${paths.model_path}
     metrics:
       - ${paths.train_metrics}:
           cache: false
+
+  # Batch inference to produce ML predictions
+  m5_predict_model:
+    cmd: >
+      python -m src.model.batch_predict
+      --model ${paths.model_path}
+      --features ${paths.cost_breakdown}
+      --out ${paths.ml_predictions}
+      --preview-csv ${paths.mlp_preview_csv}
+      --preview-n 200
+    deps:
+      - src/model/batch_predict.py
+      - ${paths.model_path}
+      - ${paths.cost_breakdown}
+      - params.yaml
+    outs:
+      - ${paths.ml_predictions}
+      - ${paths.mlp_preview_csv}
+
+  # Fusion now also consumes ML predictions
+  m4_fusion_calibration_reporting:
+    cmd: >
+      python -m src.fusion.fuse_report
+      --tab ${paths.processed_tabular}
+      --cost ${paths.cost_breakdown}
+      --ml ${paths.ml_predictions}
+      --out ${paths.final_estimates}
+      --metrics ${paths.metrics_final}
+      --preview-csv ${paths.m4_preview_csv}
+      --preview-n 200
+    deps:
+      - src/fusion/fuse_report.py
+      - ${paths.processed_tabular}
+      - ${paths.cost_breakdown}
+      - ${paths.ml_predictions}
+      - params.yaml
+    outs:
+      - ${paths.final_estimates}
+      - ${paths.m4_preview_csv}
+    metrics:
+      - ${paths.metrics_final}
