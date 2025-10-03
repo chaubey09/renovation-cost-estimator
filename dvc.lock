@@ -113,8 +113,8 @@ stages:
       size: 826058
     - path: outputs/reports/ml_predictions.parquet
       hash: md5
-      md5: 6f77633d29c39511a3cdb35fbf448754
-      size: 255374
+      md5: 401148251920efd3a20e3467992b9b79
+      size: 1726136
     - path: params.yaml
       hash: md5
       md5: b7b69f4d7d0d148a82481387645e5428
@@ -126,16 +126,16 @@ stages:
     outs:
     - path: outputs/reports/final_estimates.parquet
       hash: md5
-      md5: c1dae5ccb4b6b068ad04756eee5e2b31
-      size: 743512
+      md5: 7bd678383ac1411ffd0536db0380b006
+      size: 460515
     - path: outputs/reports/m4_preview.csv
       hash: md5
-      md5: 309e94d2a39fc85706efa65b9e0abdc3
-      size: 26896
+      md5: b566c826093709865c95046ce43e7064
+      size: 13606
     - path: outputs/reports/metrics.json
       hash: md5
-      md5: 815493b71ea78438a2f158704b5e54b5
-      size: 337
+      md5: 585f75a410cd85ddf4ab16c4d73dd3ba
+      size: 316
   m5_train_model:
     cmd: "python -m src.train.train_model --costs data/processed/cost_breakdown.parquet
       --processed data/processed/processed.parquet --model-out models/model.joblib
@@ -185,21 +185,20 @@ stages:
       size: 2885
     - path: src/train/train_model.py
       hash: md5
-      md5: 4cd82cefa9fad9480f0e54d16980cd58
-      size: 5101
+      md5: e05aa9833d32c7f2df26c68619db9987
+      size: 5900
     outs:
     - path: models/lgbm.pkl
       hash: md5
-      md5: 523614d48f2fdf36f962d79458f1300b
-      size: 6862608
+      md5: ab0d89d5a7566d04094ebba37b1bddb8
+      size: 6843024
     - path: outputs/reports/model_metrics.json
       hash: md5
-      md5: dce4c1c423b62525585be60d83fe8476
-      size: 117
+      md5: e9f4a37512887d390c194e62c78b3fe7
+      size: 118
   m5_predict_model:
     cmd: "python -m src.model.batch_predict --model models/lgbm.pkl --features data/processed/cost_breakdown.parquet
-      --out outputs/reports/ml_predictions.parquet --preview-csv outputs/reports/ml_preview.csv
-      --preview-n 200\n"
+      --out outputs/reports/ml_predictions.parquet\n"
     deps:
     - path: data/processed/cost_breakdown.parquet
       hash: md5
@@ -207,22 +206,14 @@ stages:
       size: 1627872
     - path: models/lgbm.pkl
       hash: md5
-      md5: 523614d48f2fdf36f962d79458f1300b
-      size: 6862608
-    - path: params.yaml
-      hash: md5
-      md5: b7b69f4d7d0d148a82481387645e5428
-      size: 2885
+      md5: ab0d89d5a7566d04094ebba37b1bddb8
+      size: 6843024
     - path: src/model/batch_predict.py
       hash: md5
-      md5: 67c44b4015b7e97727d52169d666cd86
-      size: 2949
+      md5: ce5fd2eccd80577e959e88cf4dbb751c
+      size: 4071
     outs:
     - path: outputs/reports/ml_predictions.parquet
       hash: md5
-      md5: 6f77633d29c39511a3cdb35fbf448754
-      size: 255374
-    - path: outputs/reports/ml_preview.csv
-      hash: md5
-      md5: 928e2289a2e8ec50cac9a54804825f4e
-      size: 8270
+      md5: 401148251920efd3a20e3467992b9b79
+      size: 1726136
