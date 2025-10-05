@@ -1,6 +1,3 @@
-vars:
-  - params.yaml
-
 stages:
   m1_tabular_preprocess:
     cmd: >
@@ -59,7 +56,7 @@ stages:
     metrics:
       - ${paths.metrics_m3}
 
-  # Train the ML model on M3 features + GT labels
+  # Train the LightGBM model (also writes SHAP plot to outputs/plots/)
   m4_train_model:
     cmd: >
       python -m src.train.train_model
@@ -78,25 +75,20 @@ stages:
       - ${paths.train_metrics}:
           cache: false
 
-  # Batch inference to produce ML predictions
   m5_predict_model:
-    cmd: >
-      python -m src.model.batch_predict
-      --model ${paths.model_path}
-      --features ${paths.cost_breakdown}
-      --out ${paths.ml_predictions}
-      --preview-csv ${paths.mlp_preview_csv}
-      --preview-n 200
-    deps:
-      - src/model/batch_predict.py
-      - ${paths.model_path}
-      - ${paths.cost_breakdown}
-      - params.yaml
-    outs:
-      - ${paths.ml_predictions}
-      - ${paths.mlp_preview_csv}
+      cmd: >
+        python -m src.model.batch_predict
+        --model ${paths.model_path}
+        --features ${paths.cost_breakdown}
+        --out ${paths.ml_predictions}
+      deps:
+        - src/model/batch_predict.py
+        - ${paths.model_path}
+        - ${paths.cost_breakdown}
+      outs:
+        - ${paths.ml_predictions}
 
-  # Fusion now also consumes ML predictions
+  # Final fused/reporting stage (consumes ML preds + cost mapping)
   m4_fusion_calibration_reporting:
     cmd: >
       python -m src.fusion.fuse_report

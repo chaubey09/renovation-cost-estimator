@@ -1,0 +1,259 @@
+TL;DR
+
+You estimate renovation costs using three signals and blend them:
+
+Tabular baseline (Tab): whatever costs are already present in the cleaned dataset.
+
+Quantity model (Qty): rule-based quantities (paintable area, flooring, false ceiling, electrical points) × cost rates.
+
+Machine Learning (ML): LightGBM trained to predict total cost from engineered features.
+
+A simple 3-way fusion linearly blends these three estimates (with optional global scaling) to produce the final estimate.
+
+The pipeline at a glance
+Raw CSV
+  │
+  ├─ M1: Tabular preprocess  (src/tabular/preprocess.py)
+  │      → data/processed/processed.parquet
+  │
+  ├─ M2: Quantity estimation (src/quantity/estimate.py)
+  │      → data/processed/quantities.parquet
+  │
+  ├─ M3: Cost mapping        (src/cost/map_costs.py)
+  │      merges M1 + M2 + rate tables
+  │      → data/processed/cost_breakdown.parquet
+  │      → outputs/reports/metrics_m3.json, plots CSVs (by city)
+  │
+  ├─ Train ML (m4)           (src/train/train_model.py)
+  │      uses M3 features + M1 labels (Grand_Total)
+  │      → models/lgbm.pkl, outputs/reports/model_metrics.json
+  │
+  ├─ Batch predict (m5)      (src/model/batch_predict.py)
+  │      model on M3 features for all rows
+  │      → outputs/reports/ml_predictions.parquet, ml_preview.csv
+  │
+  └─ Fusion/report (m4 fuse) (src/fusion/fuse_report.py)
+         Tab + Qty + ML (+ calibration)
+         → outputs/reports/final_estimates.parquet
+         → outputs/reports/metrics.json, m4_preview.csv
+
+
+You run everything with:
+
+dvc repro
+
+
+and configuration lives in params.yaml (quant rules, rates, training params, fusion weights, paths).
+
+What each stage does (simple terms)
+M1 – Tabular Preprocess (src/tabular/preprocess.py)
+
+Reads raw CSV.
+
+Cleans booleans/strings and coerces common numeric columns.
+
+Drops As_Of_Date if present.
+
+Saves to processed.parquet and a small preview/schema.
+
+Output columns include baseline values like Grand_Total and Total_Cost_per_Sqft (these are your “Tab” baselines).
+
+M2 – Quantity Estimation (src/quantity/estimate.py)
+
+Uses params.yaml → quant_rules to compute:
+
+paintable_area_sqft
+
+flooring_area_sqft
+
+false_ceiling_area_sqft
+
+electrical_points (base per room + area scaling, and only if Has_Electrical)
+
+Optionally applies overrides from detections.jsonl.
+
+Saves quantities.parquet.
+
+M3 – Cost Mapping (src/cost/map_costs.py)
+
+Merges M1 + M2.
+
+Applies city/material indices, quality/type tables from params.yaml → rates.
+
+Computes itemized estimates:
+
+Painting_*_Est, Flooring_*_Est, Ceiling_*_Est, Electrical_*_Est, Kitchen_/Bathroom_Package_Cost_Est.
+
+Sums them with wastage/overhead/GST to get:
+
+Grand_Total_Quantity
+
+Total_Cost_per_Sqft_Q
+
+Writes cost_breakdown.parquet + metrics and a by-city CSV for charts.
+
+ML training (stage “m4_train_model”, src/train/train_model.py)
+
+Joins M3 (features) with M1’s Grand_Total as the label.
+
+Prevents label leakage by excluding true cost columns (e.g., *_Cost, GST_Amount, Grand_Total, etc.). It keeps the engineered *_Est features from M3.
+
+Trains a LightGBM regressor in a sklearn pipeline (preprocessing + model).
+
+Saves models/lgbm.pkl and metrics to outputs/reports/model_metrics.json (rmse, mae, r2_score, n_rows).
+
+Batch prediction (stage “m5_predict_model”, src/model/batch_predict.py)
+
+Loads models/lgbm.pkl.
+
+Uses the same feature selection (excludes true cost columns) on M3.
+
+Predicts Grand_Total_ML and derives Cost_per_Sqft_ML using a robust area fallback.
+
+Saves ml_predictions.parquet + a preview CSV.
+
+Fusion & Reporting (stage “m4_fusion_calibration_reporting”, src/fusion/fuse_report.py)
+
+Brings together:
+
+Tab baselines from M1 (Grand_Total_Tab, Cost_per_Sqft_Tab)
+
+Quantity estimates from M3 (Grand_Total_Quantity, Total_Cost_per_Sqft_Q)
+
+ML predictions from m5 (Grand_Total_ML, Cost_per_Sqft_ML)
+
+Blends them with weights from params.yaml → fusion and an optional global calibration factor.
+
+The 3-way fusion formula
+
+Let:
+
+𝑇
+=
+T= Tab estimate
+
+𝑄
+=
+Q= Quantity estimate
+
+𝑀
+=
+M= ML estimate
+
+Weights 
+𝑤
+tab
+,
+𝑤
+qty
+,
+𝑤
+ml
+w
+tab
+	​
+
+,w
+qty
+	​
+
+,w
+ml
+	​
+
+ (non-negative; you can normalize them to sum to 1), and
+
+Global scalar 
+𝑐
+c (calibration_factor).
+
+Then for totals:
+
+Grand_Total_Fused = c * ( w_tab*T + w_qty*Q + w_ml*M )
+
+
+Similarly for per-sqft:
+
+Cost_per_Sqft_Fused = c * ( w_tab*T_psf + w_qty*Q_psf + w_ml*M_psf )
+
+
+If any component is missing (NaN), it contributes 0 (the code uses NaN-safe math).
+
+Why fuse 3 signals?
+
+Tab = what the dataset already claims (good anchor when present; may be stale/incomplete).
+
+Qty = transparent, explainable math from rules & rates (great for generalization; may be conservative or miss local quirks).
+
+ML = learns complex interactions (can be more accurate on average; needs careful training & leakage control).
+
+By weighting them, you can steer the final estimate to whichever signal is most reliable for your data—and change it anytime via params.yaml (no code changes).
+
+Fusion metrics (what you get)
+
+In outputs/reports/metrics.json → fusion:
+
+mean_fused_cost_per_sqft
+
+weights (as used)
+
+mean_abs_diff_vs_tab, mean_abs_diff_vs_qty (sanity gaps)
+
+ml_coverage_ratio (how many rows had ML predictions)
+
+Where important knobs live (params.yaml)
+
+quant_rules: multipliers/ratios and electrical rules (M2).
+
+rates: material & labor rates by quality/type + packages + base indices (M3).
+
+cost: wastage %, contractor overhead %, GST rate (M3).
+
+train: LightGBM hyperparameters, split seed/size (ML).
+
+fusion: w_tabular, w_quantity, w_ml, calibration_factor (Fusion).
+
+paths: all I/O locations used by DVC and scripts.
+
+What to look at after a run
+
+outputs/reports/model_metrics.json → ML accuracy (rmse, mae, r²).
+
+outputs/reports/final_estimates.parquet → the final fused outputs per row.
+
+outputs/reports/m4_preview.csv → a small human-readable sample of fused columns.
+
+outputs/reports/metrics.json → fusion summary.
+
+(Optional) outputs/plots/cost_per_sqft_by_city.csv from M3.
+
+Typical “how-to” tasks
+Reproduce everything
+dvc repro
+
+Try different fusion weights (no code changes)
+
+Edit in params.yaml:
+
+fusion:
+  w_tabular: 0.25
+  w_quantity: 0.35
+  w_ml: 0.40
+  calibration_factor: 1.0
+
+
+Then:
+
+dvc repro
+
+Tune the model (quick experiments)
+dvc exp run -S train.model.n_estimators=2000
+dvc exp run -S train.model.learning_rate=0.02 -S train.model.n_estimators=2800
+dvc exp show --sort-by 'outputs/reports/model_metrics.json:rmse'
+
+
+Pick a better one, apply it, and commit.
+
+Avoid label leakage (critical)
+
+The training and prediction code exclude all true cost columns (e.g., *_Cost, GST_Amount, Grand_Total, Total_Cost_per_Sqft). Use only engineered *_Est and other safe features for ML.

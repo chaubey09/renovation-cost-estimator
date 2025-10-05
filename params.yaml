@@ -1,5 +1,5 @@
 paths:
-  raw_tabular: data/raw/your_file.csv
+  raw_tabular: data/raw/renovation_cost_dataset_india_v2.csv
   processed_tabular: data/processed/processed.parquet
   detections: data/external/detections.jsonl
   quantities: data/processed/quantities.parquet
@@ -93,10 +93,11 @@ cost:
   contractor_overhead_pct: 0.12
   gst_rate: 0.18
 
+# params.yaml
 fusion:
-  w_tabular: 0.30
-  w_quantity: 0.40
-  w_ml: 0.30
+  w_tabular: 0.25
+  w_quantity: 0.35
+  w_ml: 0.40
   calibration_factor: 1.0
 
 # Parameters for the ML model training stage
@@ -105,12 +106,13 @@ train:
     test_size: 0.2
     random_state: 42
   model:
-    objective: regression_l1  # MAE
-    n_estimators: 500
+    n_estimators: 1200
     learning_rate: 0.05
-    num_leaves: 31
+    num_leaves: 64
     max_depth: -1
-    min_child_samples: 20
-    subsample: 0.8
+    min_child_samples: 40
+    subsample: 0.9
+    subsample_freq: 1
     colsample_bytree: 0.8
-    n_jobs: -1
+    reg_alpha: 0.1
+    reg_lambda: 0.2
