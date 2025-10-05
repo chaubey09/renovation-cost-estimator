@@ -17,7 +17,6 @@ __pycache__/
 # Data files (tracked by DVC, not Git)
 data/
 outputs/
-models/
 
 # Streamlit
 .streamlit/
