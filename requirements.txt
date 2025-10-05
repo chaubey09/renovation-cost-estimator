@@ -15,8 +15,7 @@ lightgbm>=4.0,<5
 shap>=0.41,<1
 matplotlib>=3.8,<4
 scipy>=1.10,<2
-- numba>=0.57,<0.60
-+ numba>=0.61,<0.63
+numba>=0.61,<0.63
 
 # =========================
 # App (local UI)
@@ -29,13 +28,13 @@ streamlit>=1.33
 dvc>=3.0
 
 # =========================
-# FastAPI API (new)
+# FastAPI API
 # =========================
 fastapi>=0.110,<1
 pydantic>=2.6,<3
 uvicorn[standard]>=0.30,<1
-python-multipart>=0.0.9,<0.0.10    # for form/file endpoints if you add them
-orjson>=3.10,<4                    # optional, speeds up JSON (FastAPI auto-uses if present)
+python-multipart>=0.0.9,<0.0.10
+orjson>=3.10,<4
 
 # =========================
 # Optional niceties
