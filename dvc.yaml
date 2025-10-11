@@ -48,6 +48,8 @@ stages:
       - src/cost/map_costs.py
       - ${paths.processed_tabular}
       - ${paths.quantities}
+      - ${paths.cost_indices_csv}
+      - ${paths.packages_csv}
       - params.yaml
     outs:
       - ${paths.cost_breakdown}
@@ -56,10 +58,10 @@ stages:
     metrics:
       - ${paths.metrics_m3}
 
-  # Train the LightGBM model (also writes SHAP plot to outputs/plots/)
+  # Train the LightGBM model (writes SHAP plot into outputs/plots/ via script)
   m4_train_model:
     cmd: >
-      python -m src.train.train_model
+      python src/train/train_model.py
       --costs ${paths.cost_breakdown}
       --processed ${paths.processed_tabular}
       --model-out ${paths.model_path}
@@ -76,17 +78,17 @@ stages:
           cache: false
 
   m5_predict_model:
-      cmd: >
-        python -m src.model.batch_predict
-        --model ${paths.model_path}
-        --features ${paths.cost_breakdown}
-        --out ${paths.ml_predictions}
-      deps:
-        - src/model/batch_predict.py
-        - ${paths.model_path}
-        - ${paths.cost_breakdown}
-      outs:
-        - ${paths.ml_predictions}
+    cmd: >
+      python -m src.model.batch_predict
+      --model ${paths.model_path}
+      --features ${paths.cost_breakdown}
+      --out ${paths.ml_predictions}
+    deps:
+      - src/model/batch_predict.py
+      - ${paths.model_path}
+      - ${paths.cost_breakdown}
+    outs:
+      - ${paths.ml_predictions}
 
   # Final fused/reporting stage (consumes ML preds + cost mapping)
   m4_fusion_calibration_reporting:
@@ -110,3 +112,4 @@ stages:
       - ${paths.m4_preview_csv}
     metrics:
       - ${paths.metrics_final}
+
